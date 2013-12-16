@@ -334,22 +334,3 @@ class x05:
       return True
     else:
       return self.__status(status)
-
-
-  def readRawText(self):
-    raise Exception ("not implemented")
-  #TODO
-    data=self.readRaw()
-  #... detect LZ, BPI and BPC
-  #.... decode data to human readable text according to lz, bpi and bpc
-  # return text
-
-  def writeRawText(self,text,bpi,bpc,lz):
-    raise Exception ("not implemented")
-  #TODO
-    self.setLZ(lz)
-    self.setBPI(bpi)
-    self.setBPC(bpc)
-  #.... prepare data from text according to given lz, bpi and bpc
-    self.__warn()
-  # return self.writeRaw(data)
