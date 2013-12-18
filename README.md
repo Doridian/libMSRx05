@@ -13,10 +13,10 @@ Example
 ========
 
 NOTE: 
-    - default BPI is 210BPI for Track1 and Track3 and 75BPI for Track2
-    - default BPC is 7BPC for Track1 and 5BPC for Track2 and Track3
-    - the library supports changing these values but the user utility
-    always assumes default values for simplicity
+- default BPI is 210BPI for Track1 and Track3 and 75BPI for Track2
+- default BPC is 7BPC for Track1 and 5BPC for Track2 and Track3
+- the library supports changing these values but the user utility
+always assumes default values for simplicity
 
 * Clone a card
 ./msr.py -x
