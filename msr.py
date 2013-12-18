@@ -64,25 +64,42 @@ try:
             with open(args.file,"rb") as f:
                 data_dict = {'track1':'','track2':'','track3':''}
                 try:
-                    data_dict.update( json.load(f,encoding="latin1") )
+                    json_data = json.load(f,encoding="latin1")
+                    erase_tracks_str = ""
+                    erase_tracks = [0,0,0]
+                    if "track1" in json_data and json_data["track1"] == "":
+                        erase_tracks[0] = 1
+                        erase_tracks_str += "1"
+                    if "track2" in json_data and json_data["track2"] == "":
+                        erase_tracks[1] = 1
+                        erase_tracks_str += "2"
+                    if "track3" in json_data and json_data["track3"] == "":
+                        erase_tracks[2] = 1
+                        erase_tracks_str += "3"
+                    data_dict.update(json_data)
                 except (ValueError, TypeError):
                     print("FAILED - Invalid input data.")
                     print('Data must be in json dictionary with keys "track1","track2","track3" - just like returned by --read')
                     sys.exit(1)
                 data = [ data_dict['track1'], data_dict['track2'], data_dict['track3'] ]
-                overwrite_tracks = ""
-                if data[0] != '': overwrite_tracks += "1"
-                if data[1] != '': overwrite_tracks += "2"
-                if data[2] != '': overwrite_tracks += "3"
-                print("Track(s) %s will be overwritten" %  overwrite_tracks)
+                overwrite_tracks_str = ""
+                if data[0] != '': overwrite_tracks_str += "1"
+                if data[1] != '': overwrite_tracks_str += "2"
+                if data[2] != '': overwrite_tracks_str += "3"
+                print("Track(s) %s will be overwritten" %  overwrite_tracks_str)
                 try:
                     res = device.writeRaw(data)
                 except Exception, ex:
                     print(ex)
+                    sys.exit(1)
                 if res == True:
                     print("OK")
                 else:
                     print("FAIL: %s" % res)
+                    sys.exit(1)
+                if any(erase_tracks):
+                    print("Please swipe again to erase track(s) %s." % erase_tracks_str)
+                    device.eraseTracks(erase_tracks)
         except IOError, ex:
             print(ex)
             sys.exit(1)
