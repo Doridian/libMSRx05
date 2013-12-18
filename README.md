@@ -24,13 +24,22 @@ Clone a card
 
 NOTE: swipe the original card and then the new card
 
-Save a raw dump of a card raw to a file
+Save a raw dump of a card to a file
 ---------------------------------------
-./msr.py -W -f card\_dump
+./msr.py -r -f card\_dump
+
+Read a card in raw mode and show the result on stdout
+------------------------------------------------------
+./msr.py -r
 
 Load a card from a raw dump (using alternative path to the device)
 ------------------------------------------------------------------
-./msr.py -R -f card\_dump -d /dev/ttyUSB1
+./msr.py -w -f card\_dump -d /dev/ttyUSB1
+
+NOTE:
+The raw dump is a human-readable JSON file with keys "track1", "track2", "track3".
+If a key is missing, the track is not touched. If the value for a key is an empty string,
+the track is erased.
 
 Write ISO-formatted data to the card - ISO 7813 (tracks 1 and 2) and ISO 4909 (track 3)
 ---------------------------------------------------------------------------------------
@@ -40,7 +49,29 @@ NOTE: Only certain characters are supported in ISO mode
 
 Write ISO-formatted data to the card (overwrite only track 2)
 ---------------------------------------------------------------
-./msr.py -w -t 2 777
+./msr.py -W "" ";777?"
+
+Write ISO-formatted data to the card (only3 track3 should contain data)
+--------------------------------------------------------------------------
+./msr.py -e
+./msr.py -W "" "" ";333?"
+
+Save an ISO dump of a card to a file
+-----------------------------------
+./msr.py -R -f iso\_dump
+
+Read a card in ISO mode and show the result on stdout
+-------------------------------------------------
+./msr.py -R
+
+Load a card from an ISO dump
+----------------------------
+./msr.py -W -f iso\_dump
+
+NOTE:
+The ISO dump is a human-readable JSON file with keys "iso\_track1", "iso\_track2", "iso\_track3".
+If a key is missing, the track is not touched. If the value for a key is an empty string,
+the track is erased.
 
 Reset the device
 ----------------
