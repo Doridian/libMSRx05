@@ -36,7 +36,7 @@ The raw dump is a human-readable JSON file with keys "track1", "track2", "track3
 If a key is missing, the track is not touched. If the value for a key is an empty string,
 the track is erased.
 
-### Write ISO-formatted data to the card - ISO 7813 (tracks 1 and 2) and ISO 4909 (track 3) ###
+### Write ISO-formatted data to the card ###
 ./msr.py -W "%ABC123?" ";657?" ";999?"
 
 NOTE: Only certain characters are supported in ISO mode
