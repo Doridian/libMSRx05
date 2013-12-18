@@ -269,7 +269,6 @@ class x05:
             command += ESC+chr(i+1)+data[i]
         command += '?\x1C'
 
-        print("%r" % command)
         self.__s.write(command)
         self.__expect(ESC)
 
