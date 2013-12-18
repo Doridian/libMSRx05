@@ -113,3 +113,8 @@ NOTE: reset does not change coercivity mode
 ```
 ./msr.py --test
 ```
+
+### Show info about the device on stdout ###
+```
+./msr.py --info
+```
