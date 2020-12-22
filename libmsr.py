@@ -33,7 +33,7 @@ class x05:
         self.close()
 
     def close(self):
-        self.__s.close
+        self.__s.close()
 
     def __status(self,c):
         if (c=='0'): return "OK"
