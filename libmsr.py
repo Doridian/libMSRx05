@@ -24,10 +24,10 @@ class x05:
         self.testComm()
 
     def __s_write(self, s):
-        return self.__s.write(s.encode())
+        return self.__s.write(s.encode('latin1'))
 
     def __s_read(self, len = 1):
-        return self.__s.read(len).decode()
+        return self.__s.read(len).decode('latin1')
 
     def __exit__(self, type, value, traceback):
         self.close()
