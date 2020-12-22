@@ -13,6 +13,7 @@ import time
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group(required=True)
+coerg = parser.add_mutually_exclusive_group(required=False)
 group.add_argument ('-r', '--read', action="store_true", help="RAW read magnetic tracks")
 group.add_argument ('-w', '--write', action="store_true", help="RAW write magnetic tracks")
 group.add_argument ('-R', '--iso-read', action="store_true", help="ISO read magnetic tracks")
@@ -22,8 +23,10 @@ group.add_argument ('-x', '--clone', action="store_true", help="clone card")
 group.add_argument ('-i', '--info', action="store_true", help="Print device information (firmware version,...)")
 group.add_argument ('--reset', action="store_true", help="Reset the device")
 group.add_argument ('-t','--test', action="store_true", help="Run all the tests on the device")
-group.add_argument ('-C', '--hico', action="store_true", help="switch device to high coercivity mode")
-group.add_argument ('-c', '--loco', action="store_true", help="switch device to low coercivity mode")
+coerg.add_argument ('-C', '--hico', action="store_true", help="switch device to high coercivity mode")
+coerg.add_argument ('-c', '--loco', action="store_true", help="switch device to low coercivity mode")
+parser.add_argument('--bpc', nargs="*", help="Set BPC (5-7 for all 3 tracks)")
+parser.add_argument('--bpi', nargs="*", help="Set BPI (high(1) or low(0), or as-is(None) for all 3 tracks)")
 parser.add_argument('-f', '--file', help="Path to file to be used with RAW read/write")
 parser.add_argument('-d', '--device', help="path to serial communication device",default="/dev/ttyUSB0")
 
@@ -31,9 +34,39 @@ args = parser.parse_args()
 
 try:
     device = msr.x05(args.device, True)
-except serial.serialutil.SerialException, ex:
+except serial.serialutil.SerialException as err:
     print(ex)
     sys.exit(1)
+
+if args.bpc is not None:
+    res = device.setBPC(list(map(int, args.bpc)))
+    if res:
+        print("BPC set")
+    else:
+        print("BPC failed")
+        sys.exit(1)
+if args.bpi is not None:
+    res = device.setBPI(list(map(int, args.bpi)))
+    if res:
+        print("BPI set")
+    else:
+        print("BPI failed")
+        sys.exit(1)
+
+if args.hico:
+    res = device.setHiCo()
+    if res:
+        print("Hi-Co mode set")
+    else:
+        print("Hi-Co FAILED")
+        sys.exit(1)
+elif args.loco:
+    res = device.setLoCo()
+    if res:
+        print("Lo-Co mode set")
+    else:
+        print("Lo-Co FAILED")
+        sys.exit(1)
 
 try:
     if args.read:
@@ -45,7 +78,7 @@ try:
                         res_dict = {'track1':res[0],'track2':res[1],'track3':res[2]}
                         json.dump(res_dict,f,indent=4,encoding='latin1')
                         f.write("\n")
-                except IOError, ex:
+                except IOError as ex:
                     print(ex)
                     sys.exit(1)
             else:
@@ -94,7 +127,7 @@ try:
                 print("Track(s) %s will be overwritten" %  overwrite_tracks_str)
                 try:
                     res = device.writeRaw(data)
-                except Exception, ex:
+                except Exception as ex:
                     print(ex)
                     sys.exit(1)
                 if res == True:
@@ -105,7 +138,7 @@ try:
                 if any(erase_tracks):
                     print("Please swipe again to erase track(s) %s." % erase_tracks_str)
                     device.eraseTracks(erase_tracks)
-        except IOError, ex:
+        except IOError as ex:
             print(ex)
             sys.exit(1)
     elif args.iso_read:
@@ -117,7 +150,7 @@ try:
                             res_dict = {'iso_track1':res[0],'iso_track2':res[1],'iso_track3':res[2]}
                             json.dump(res_dict,f,indent=4,encoding='latin1')
                             f.write("\n")
-                    except IOError, ex:
+                    except IOError as ex:
                         print(ex)
                         sys.exit(1)
                 else:
@@ -165,7 +198,7 @@ try:
                         print('Data must be in json dictionary with keys "iso_track1","iso_track2","iso_track3" - just like returned by -R')
                         sys.exit(1)
                     data = [ data_dict['iso_track1'], data_dict['iso_track2'], data_dict['iso_track3'] ]
-            except IOError, ex:
+            except IOError as ex:
                 print(ex)
                 sys.exit(1)
         else:
@@ -210,7 +243,7 @@ try:
         print("Track(s) %s will be overwritten" %  overwrite_tracks_str)
         try:
             res = device.writeISO(data)
-        except Exception, ex:
+        except Exception as ex:
             print(ex)
             sys.exit(1)
         if res == True:
@@ -256,11 +289,11 @@ try:
             sys.exit(1)
 
         if any(erase_tracks):
-            print "Please swipe again (to erase tracks which are empty on the original card ...)"
+            print("Please swipe again (to erase tracks which are empty on the original card ...)")
             device.eraseTracks(erase_tracks)
 
         time.sleep(0.2)
-        print "Please swipe the newly written card again to verify contents..."
+        print("Please swipe the newly written card again to verify contents...")
         data = device.readRaw()
         if len(data) == 3:
             print("track1: %r\ntrack2: %r\ntrack3: %r" % ( data[0],data[1],data[2] ) )
@@ -283,22 +316,10 @@ try:
     elif args.reset:
         device.reset()
     elif args.test:
-        print "Full self test (please swipe a card)"
+        print("Full self test (please swipe a card)")
         if device.test():
             print('OK')
         else:
             print('FAILED')
-    elif args.hico:
-        res = device.setHiCo()
-        if res:
-            print("Hi-Co mode set")
-        else:
-            print("FAILED")
-    elif args.loco:
-        res = device.setLoCo()
-        if res:
-            print("Lo-Co mode set")
-        else:
-            print("FAILED")
 except KeyboardInterrupt:
     print("Received KeyboardInterrupt. Exiting.")
